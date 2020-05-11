@@ -36,7 +36,7 @@ vi vectormerge(vi v1,vi v2){
         v2=tmp;
     };
     for(auto v1it:v1){
-        if(std::find(v2.begin(),v2.end(),v1it)!=v2.end())
+        if(std::find(v2.begin(),v2.end(),v1it)==v2.end())
             v2.push_back(v1it);
 
     }
@@ -56,6 +56,7 @@ int main(){
 	v5.push_back(3);v5.push_back(1);v5.push_back(2);v5.push_back(3);
 	v6.push_back(1);v6.push_back(2);
 	cout<<isSubVector(v5,v6)<<endl;
+    v1=vectormerge(v1,v4);
     system("pause");
 	return 0;
 
