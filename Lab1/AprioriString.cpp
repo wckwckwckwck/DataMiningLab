@@ -9,7 +9,6 @@ using namespace std;
 #include<fstream>
 #include<algorithm>
 map<int,int> mdata;
-#include<time.h>
 
 typedef map<int,int> mii;
 typedef map<vector<int>,int> mvi;
@@ -61,12 +60,12 @@ bool isSubVector(vector<int> v1,vector<int> v2){
     //     v2=tmp;
     // };
     sort(v1.begin(),v1.end());
-    sort(v2.begin(),v2.end());
+    sort(v2.begin(),v2.begin());
     int i=0;int j=0;
     while(i<s1 && j<s2){
         if(v1[i]==v2[j]) {i++;j++;}
-        else if(v1[i]> v2[j]) j++;
-        else if(v1[i] <v2[j]) break;
+        else if(v1[i]<v2[j]) i++;
+        else if(v1[i]>v2[j]) break;
     }
     bool res=(i==s1);
     return res;
@@ -97,16 +96,6 @@ int findVectorInMap(vector<int> v_data,mvi m_data){
     return sum;    
 }
 
-//重载一个快捷搜索，搜索到大于支持度就停下
-int findVectorInMap(vector<int> v_data,mvi m_data,int min_sup){
-    int sum=0;
-    for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++){
-        if(isSubVector(v_data,mviit->first)) sum++;
-        if(sum>=min_sup) return sum;
-    }
-    return sum;    
-}
-
 // 从一项集生成二项集
 map<vector<int>,int> apriori(map<int,int> m_data,int min_sup){
     int count=1;
@@ -114,25 +103,17 @@ map<vector<int>,int> apriori(map<int,int> m_data,int min_sup){
     map<vector<int>,int> res_data;
     for(map<int,int>::iterator it1=t_data.begin();it1!=t_data.end();it1++){
         map<int,int>::iterator it2=it1;
-        clock_t t1=clock();
         for(it2++;it2!=t_data.end();it2++){
             vector<int> tmp_vec={it1->first,it2->first};
             if(res_data.count(tmp_vec)>0) continue;
-            clock_t t3=clock();
-            cout<<it2->first<<"beforfind "<<t3-t1<<endl;
-            int appeartime=findVectorInMap(tmp_vec,dv,min_sup); //判断生成的新二项集出现次数 
-            // int appeartime=10;
-            clock_t t4=clock();
-            cout<<it2->first<<"afterfind: "<<t4-t1<<endl;
-
-            if(appeartime>=min_sup) {                    //大于置信度，则放入Map
+            int appeartime=findVectorInMap(tmp_vec,dv); //判断生成的新二项集出现次数 
+            if(appeartime>=min_sup) {
                 // cout<<min_sup<<endl;
                 res_data[tmp_vec]=appeartime;
             }
             else continue;
         }
-        clock_t t2=clock();
-        cout<<it1->first<<" "<<t2-t1<<endl;
+        cout<<it1->first<<endl;
     }
     return res_data;
 }

@@ -1,0 +1,3 @@
+FruquentSet:{1 177 } AppearTime:178
+FruquentSet:{1 217 } AppearTime:119
+FruquentSet:{177 217 } AppearTime:129
