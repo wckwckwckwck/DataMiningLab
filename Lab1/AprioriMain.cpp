@@ -10,7 +10,7 @@ using namespace std;
 #include<algorithm>
 map<int,int> mdata;
 #include<time.h>
-
+#include<windows.h>
 typedef map<int,int> mii;
 typedef map<vector<int>,int> mvi;
 typedef vector<int> vi;
@@ -21,7 +21,7 @@ const int MAX_SIZE= 1e4;
 mvi dv;
 int min_sup=6;
 
-//读取文件 
+SYSTEMTIME sys;
 void readfile(){
     int i=0;
     ifstream dfile("T1014D1K.dat");
@@ -44,6 +44,7 @@ void readfile(){
             }
             else{mdata[ta]++;}
         }
+        sort(vstor.begin(),vstor.end());//排序好后插入 
         dv[vstor]=1;
         // cout<<tmp<<endl;
 
@@ -61,7 +62,7 @@ bool isSubVector(vector<int> v1,vector<int> v2){
     //     v2=tmp;
     // };
     sort(v1.begin(),v1.end());
-    sort(v2.begin(),v2.end());
+    // sort(v2.begin(),v2.end());
     int i=0;int j=0;
     while(i<s1 && j<s2){
         if(v1[i]==v2[j]) {i++;j++;}
@@ -89,21 +90,43 @@ vi vectormerge(vi v1,vi v2){
     return v2;
 }
 
-int findVectorInMap(vector<int> v_data,mvi m_data){
-    int sum=0;
-    for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++){
-        if(isSubVector(v_data,mviit->first)) sum++;
-    }
-    return sum;    
-}
+// int findVectorInMap(vector<int> v_data,mvi m_data){
+//     int sum=0;
+//     for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++){
+//         if(isSubVector(v_data,mviit->first)) sum++;
+//     }
+//     return sum;    
+// }
 
 //重载一个快捷搜索，搜索到大于支持度就停下
 int findVectorInMap(vector<int> v_data,mvi m_data,int min_sup){
     int sum=0;
-    for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++){
-        if(isSubVector(v_data,mviit->first)) sum++;
-        if(sum>=min_sup) return sum;
+    GetLocalTime(&sys);
+    cout<<"fuc start"<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
+
+    // for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++)
+    for(auto mviit:m_data)
+    {
+    cout<<"funcend"<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
+
+        return sum;
+
+        // clock_t t1=clock();
+    // cout<<"begintime"<<t1;
+        // if(isSubVector(v_data,mviit->first)) sum++;
+        
+        // sort(v_data.begin(),v_data.end());
+        
+        // bool isin=includes(mviit->first.begin(),mviit->first.end(),v_data.begin(),v_data.end());
+        bool isin=true;
+        if(isin) sum++;
+        // cout<<"per time"<<1000*(t2-t1)<<" ";
+        if(sum>=min_sup)  {
+            return sum;
     }
+    }
+    // cout<<";end time: "<<t2<<"  "<<endl;
+
     return sum;    
 }
 
@@ -119,14 +142,18 @@ map<vector<int>,int> apriori(map<int,int> m_data,int min_sup){
             vector<int> tmp_vec={it1->first,it2->first};
             if(res_data.count(tmp_vec)>0) continue;
             clock_t t3=clock();
-            cout<<it2->first<<"beforfind "<<t3-t1<<endl;
+            // cout<<it2->first<<"beforfind "<<t3-t1<<endl;
+           GetLocalTime(&sys);
+    cout<<"beforetime "<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
+           
             int appeartime=findVectorInMap(tmp_vec,dv,min_sup); //判断生成的新二项集出现次数 
+    cout<<"aftertime "<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
+
             // int appeartime=10;
-            clock_t t4=clock();
-            cout<<it2->first<<"afterfind: "<<t4-t1<<endl;
+            // clock_t t4=clock();
+            // cout<<it2->first<<"afterfind: "<<t4-t1<<endl;
 
             if(appeartime>=min_sup) {                    //大于置信度，则放入Map
-                // cout<<min_sup<<endl;
                 res_data[tmp_vec]=appeartime;
             }
             else continue;
@@ -149,7 +176,7 @@ mvi apriori(mvi m_data,int min_sup){
             vi vi_tmp=vectormerge(it1->first,it2->first);
             if(vi_tmp.size()!=visize+1) continue;
             else {
-                int appearTime=findVectorInMap(vi_tmp,dv);
+                int appearTime=findVectorInMap(vi_tmp,dv,min_sup);
                 if(appearTime>=min_sup){
                     databack[vi_tmp]=appearTime;
                 }
@@ -211,7 +238,7 @@ bool vectorCompare(vi t1,mvi tcompare){
                 t2.push_back(itv);
             }
         }
-        if(findVectorInMap(t2,tcompare)==0) return false;
+        if(findVectorInMap(t2,tcompare,1)==0) return false;
     }
     return true;
 }
