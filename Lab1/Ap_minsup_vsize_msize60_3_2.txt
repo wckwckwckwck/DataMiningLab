@@ -1,2 +1,0 @@
-FruquentSet:{1 177 217 } AppearTime:129
-FruquentSet:{1 217 177 } AppearTime:129

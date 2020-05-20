@@ -1,5 +1,4 @@
 #include<iostream>
-#include<fstream>
 #include<sstream>
 using namespace std;
 #include<vector>
@@ -8,14 +7,15 @@ using namespace std;
 #include<map>
 #include<fstream>
 #include<algorithm>
-map<int,int> mdata;
 #include<time.h>
 #include<windows.h>
+
 typedef map<int,int> mii;
 typedef map<vector<int>,int> mvi;
 typedef vector<int> vi;
 const int MAX_SIZE= 1e4;
 
+map<int,int> mdata;
 
 
 mvi dv;
@@ -56,13 +56,13 @@ void readfile(){
 bool isSubVector(vector<int> v1,vector<int> v2){
     int s1=v1.size();
     int s2=v2.size();
-    // if(s1>=s2){
-    //     vector<int> tmp=v1;
-    //     v1=v2;
-    //     v2=tmp;
-    // };
+    if(s1>=s2){
+        vector<int> tmp=v1;
+        v1=v2;
+        v2=tmp;
+    };
     sort(v1.begin(),v1.end());
-    // sort(v2.begin(),v2.end());
+    sort(v2.begin(),v2.end());
     int i=0;int j=0;
     while(i<s1 && j<s2){
         if(v1[i]==v2[j]) {i++;j++;}
@@ -90,7 +90,7 @@ vi vectormerge(vi v1,vi v2){
     return v2;
 }
 
-// int findVectorInMap(vector<int> v_data,mvi m_data){
+// int findVectorInMaptt(vector<int> v_data,mvi m_data){
 //     int sum=0;
 //     for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++){
 //         if(isSubVector(v_data,mviit->first)) sum++;
@@ -99,34 +99,18 @@ vi vectormerge(vi v1,vi v2){
 // }
 
 //重载一个快捷搜索，搜索到大于支持度就停下
-int findVectorInMap(vector<int> v_data,mvi m_data,int min_sup){
+int findVectorInMap(vector<int> v_data,mvi m_data){
     int sum=0;
     GetLocalTime(&sys);
-    cout<<"fuc start"<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
-
-    // for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++)
-    for(auto mviit:m_data)
+    for(mvi::iterator mviit=m_data.begin();mviit!=m_data.end();mviit++)
     {
-    cout<<"funcend"<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
-
-        return sum;
-
-        // clock_t t1=clock();
-    // cout<<"begintime"<<t1;
-        // if(isSubVector(v_data,mviit->first)) sum++;
-        
-        // sort(v_data.begin(),v_data.end());
-        
-        // bool isin=includes(mviit->first.begin(),mviit->first.end(),v_data.begin(),v_data.end());
-        bool isin=true;
+    // cout<<"funcend"<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
+        bool isin=includes(mviit->first.begin(),mviit->first.end(),v_data.begin(),v_data.end());
+        // bool isin=true;
         if(isin) sum++;
-        // cout<<"per time"<<1000*(t2-t1)<<" ";
-        if(sum>=min_sup)  {
-            return sum;
+        // if(sum>=min_sup)  {
+        //     return sum;
     }
-    }
-    // cout<<";end time: "<<t2<<"  "<<endl;
-
     return sum;    
 }
 
@@ -137,29 +121,20 @@ map<vector<int>,int> apriori(map<int,int> m_data,int min_sup){
     map<vector<int>,int> res_data;
     for(map<int,int>::iterator it1=t_data.begin();it1!=t_data.end();it1++){
         map<int,int>::iterator it2=it1;
-        clock_t t1=clock();
         for(it2++;it2!=t_data.end();it2++){
             vector<int> tmp_vec={it1->first,it2->first};
             if(res_data.count(tmp_vec)>0) continue;
-            clock_t t3=clock();
-            // cout<<it2->first<<"beforfind "<<t3-t1<<endl;
-           GetLocalTime(&sys);
-    cout<<"beforetime "<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
-           
-            int appeartime=findVectorInMap(tmp_vec,dv,min_sup); //判断生成的新二项集出现次数 
-    cout<<"aftertime "<<sys.wMinute<<" "<<sys.wSecond<<" "<<sys.wMilliseconds<<" "<<endl; 
-
-            // int appeartime=10;
-            // clock_t t4=clock();
-            // cout<<it2->first<<"afterfind: "<<t4-t1<<endl;
+            GetLocalTime(&sys);
+            int appeartime=findVectorInMap(tmp_vec,dv); //判断生成的新二项集出现次数 
+            // cout<<tmp_vec[0]<<" "<<tmp_vec[1]<<" "<<appeartime<<endl;
 
             if(appeartime>=min_sup) {                    //大于置信度，则放入Map
                 res_data[tmp_vec]=appeartime;
             }
             else continue;
         }
-        clock_t t2=clock();
-        cout<<it1->first<<" "<<t2-t1<<endl;
+    cout<<" current progress:"<<it1->first<<endl;
+
     }
     return res_data;
 }
@@ -176,7 +151,7 @@ mvi apriori(mvi m_data,int min_sup){
             vi vi_tmp=vectormerge(it1->first,it2->first);
             if(vi_tmp.size()!=visize+1) continue;
             else {
-                int appearTime=findVectorInMap(vi_tmp,dv,min_sup);
+                int appearTime=findVectorInMap(vi_tmp,dv);
                 if(appearTime>=min_sup){
                     databack[vi_tmp]=appearTime;
                 }
@@ -197,7 +172,12 @@ pair<int,int> checkMapSize(mvi mvidata){
     return std::make_pair(a, b);
 }
 
-//输入mii类型，过滤其中支持度
+/*输入mii类型，过滤其中支持度
+@param: &t1         输入 mii 集合 
+@param: minsup      最小支持度
+@param: doOutput    是否写入文件以及输出 
+
+*/
 void apriorifilter(mii &t1,int minsup,bool doOutput){
     for (mii::iterator it=t1.begin();it!=t1.end();){
         mii::iterator it2;
@@ -238,7 +218,7 @@ bool vectorCompare(vi t1,mvi tcompare){
                 t2.push_back(itv);
             }
         }
-        if(findVectorInMap(t2,tcompare,1)==0) return false;
+        if(findVectorInMap(t2,tcompare)==0) return false;
     }
     return true;
 }
@@ -335,10 +315,12 @@ void writeMap(mvi t1,int min_sup){
 
 int main(){
     readfile();
-    const int min_sup=8;
+    const int min_sup=40;
     // cout<<res<<endl;
     apriorifilter(mdata,min_sup,true);//过滤数据集中是否非频繁，然后输出
-    map<vector<int>,int> res=apriori(mdata,min_sup);//生成二项集 
+
+    int min_sup2=6;
+    map<vector<int>,int> res=apriori(mdata,min_sup2);//生成二项集 
     // cout<<res<<endl;
     printmap(res);
     writeMap(res,min_sup);
@@ -346,10 +328,9 @@ int main(){
     // cout<<t1;
     pair<int,int> data=checkMapSize(res);
     while(data.first!=0 && data.second!=0){
-        int min_sup2=8;
         mvi res_process;
         res_process=apriori(res,min_sup2);
-        apriorifilter(res_process,res);
+        apriorifilter(res_process,res); 
         data=checkMapSize(res_process);
         printmap(res_process);
         writeMap(res_process,min_sup);
@@ -357,6 +338,5 @@ int main(){
     }
     cout<<"over"<<endl;
     system("pause");
-
 }
 
